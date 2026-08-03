@@ -4,6 +4,8 @@
 
 The generated HTML can be opened directly in a browser without a Python environment, web server, or internet connection.
 
+You can download `example_for_spatial_viewer.html` to experience its features.
+
 ## Features
 
 * Read spatial coordinates from `adata.obsm["spatial"]`
