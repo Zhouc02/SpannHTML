@@ -35,7 +35,7 @@ A file path can also be passed directly:
 
 ```python
 from SpannHTML import export_spatial_html
-export_spatial_html("sample.h5ad", obs_key="cell_type", output_html="cell_type_viewer.html")
+export_spatial_html("sample.h5ad", obs_key="cell_type", output_html="spatial_viewer.html")
 ```
 
 ## Optional parameters
