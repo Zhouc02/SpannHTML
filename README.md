@@ -1,6 +1,6 @@
 # SpannHTML
 
-[![PyPI version](https://img.shields.io/pypi/v/SpannHTML.svg)](https://pypi.org/project/SpannHTML/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/SpannHTML.svg)](https://pypi.org/project/SpannHTML/) [![PyPI version](https://img.shields.io/pypi/v/SpannHTML.svg)](https://pypi.org/project/SpannHTML/) [![PyPI Downloads](https://static.pepy.tech/personalized-badge/SpannHTML?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/SpannHTML) [![License](https://img.shields.io/pypi/l/SpannHTML.svg)](https://pypi.org/project/SpannHTML/)
 
 **SpannHTML** (Spatial AnnData HTML) is a Python tool for exporting spatial omics annotations stored in an `AnnData` object into a standalone interactive HTML file.
 
