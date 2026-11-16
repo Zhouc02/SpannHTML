@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__PAGE_TITLE__</title>
+<style>__STYLE__</style>
+<script>__PLOTLY_JS__</script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <h1 id="pageTitle"></h1>
+    <div class="subtitle" id="summary"></div>
+
+    <section class="group">
+      <label for="annotationSelect">Annotation</label>
+      <select id="annotationSelect"></select>
+    </section>
+
+    <section class="group">
+      <label for="categorySelect">Current category</label>
+      <select id="categorySelect"></select>
+      <div class="value-line">
+        <span>Current spot count</span>
+        <strong id="categoryCount">0</strong>
+      </div>
+      <div class="buttons">
+        <button id="onlyButton">Show only this category</button>
+        <button id="hideButton" class="danger">Hide this category</button>
+        <button id="showAllButton">Show all</button>
+        <button id="resetViewButton">Reset view</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <div id="originalNameHint" class="original-name-hint"></div>
+      <label for="nameInput">Category display name</label>
+      <input id="nameInput" type="text" maxlength="200">
+      <button id="renameButton" class="primary" style="width:100%;margin-top:8px;">
+        Apply name
+      </button>
+    </section>
+
+    <section class="group">
+      <label for="colorInput">Category color</label>
+      <input id="colorInput" type="color">
+      <button id="colorButton" class="primary" style="width:100%;margin-top:8px;">
+        Apply color
+      </button>
+    </section>
+
+    <section class="group">
+      <label>Spot category editor</label>
+      <div id="selectionSummary" class="selection-summary">No spatial spot selected</div>
+      <label for="pointCategorySelect">Assign to category</label>
+      <select id="pointCategorySelect"></select>
+      <div class="buttons">
+        <button id="applyPointCategoryButton" class="primary">Apply to spot</button>
+        <button id="clearSelectionButton">Clear selection</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <label>Spatial orientation</label>
+      <div id="transformSummary" class="selection-summary">Original orientation</div>
+      <div class="buttons">
+        <button id="rotateClockwiseButton">Rotate 90° clockwise</button>
+        <button id="mirrorLeftRightButton">Flip horizontally</button>
+        <button id="mirrorUpDownButton">Flip vertically</button>
+        <button id="resetTransformButton">Reset orientation</button>
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="row">
+        <div>
+          <label for="sizeRange">Spot size</label>
+          <input id="sizeRange" type="range" min="0.1" max="30" step="0.1">
+        </div>
+        <input id="sizeNumber" type="number" min="0.1" max="30" step="0.1">
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label for="opacityRange">Opacity</label>
+          <input id="opacityRange" type="range" min="0" max="1" step="0.05">
+        </div>
+        <input id="opacityNumber" type="number" min="0" max="1" step="0.05">
+      </div>
+    </section>
+
+    <section class="group">
+      <div class="buttons">
+        <button id="pngButton">Export PNG</button>
+        <button id="csvButton">Export current annotation</button>
+        <button id="allCsvButton">Export all annotations</button>
+        <button id="findPointButton">Find spatial spot</button>
+        <button id="resetPageButton">Restore initial state</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <section>
+      <span class="badge">Click to select a spot</span>
+      <span class="badge">Escape Clear selection</span>
+      <span class="badge">Rotate or flip the entire section</span>
+      <span class="badge">Scroll to zoom</span>
+      <span class="badge">Drag to pan</span>
+    </section>
+  </aside>
+
+  <main class="plot-wrap">
+    <div id="plot"></div>
+  </main>
+</div>
+
+<div id="findModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h2>Find spatial spot</h2>
+    <p>Enter the complete barcode. The matching spot will be shown, centered, zoomed, and highlighted.</p>
+    <label for="barcodeInput">Barcode</label>
+    <input id="barcodeInput" type="text" autocomplete="off" spellcheck="false">
+    <div class="buttons">
+      <button id="submitFindButton" class="primary">Find and highlight</button>
+      <button id="closeFindButton">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script id="payload" type="application/json">__PAYLOAD_JSON__</script>
+<script>__SCRIPT__</script>
+</body>
+</html>
