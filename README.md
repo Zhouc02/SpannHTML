@@ -2,115 +2,111 @@
 
 [![Python Versions](https://img.shields.io/pypi/pyversions/SpannHTML.svg)](https://pypi.org/project/SpannHTML/) [![PyPI version](https://img.shields.io/pypi/v/SpannHTML.svg)](https://pypi.org/project/SpannHTML/) [![PyPI Downloads](https://static.pepy.tech/personalized-badge/SpannHTML?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/SpannHTML) [![License](https://img.shields.io/pypi/l/SpannHTML.svg)](https://pypi.org/project/SpannHTML/)
 
-**SpannHTML** (Spatial AnnData HTML) is a Python tool for exporting spatial omics annotations stored in an `AnnData` object into a standalone interactive HTML file.
+SpannHTML exports AnnData spatial annotations into a single offline HTML file.
+Inspect annotations, correct spots, rename and recolor categories, and adjust
+spatial orientation in a browser. Export CSV edits and apply them in Python.
 
-The generated HTML can be opened directly in a browser without a Python environment, web server, or internet connection.
+## Installation
 
-You can download `example_for_spatial_viewer.html` to experience its features.
+```bash
+pip install SpannHTML
+```
 
-## Features
-
-* Read spatial coordinates from `adata.obsm["spatial"]`
-* Visualize a categorical column from `adata.obs`
-* Show, hide, rename, and recolor categories
-* Select an individual spatial spot and change its category
-* Search and highlight a spot by barcode
-* Zoom and pan in the browser
-* Rotate the complete spatial layout clockwise
-* Mirror the spatial layout horizontally or vertically
-* Adjust spot size and opacity
-* Export the current view as PNG
-* Export edited categories and spatial transformation settings as CSV
-* Write the exported CSV back into an `AnnData` object
-* Generate a fully self-contained and offline HTML file
-
-## Quick start
+## Export and switch annotations
 
 ```python
-pip install SpannHTML
-
 from SpannHTML import export_spatial_html
+
 export_spatial_html(adata, obs_key="cluster", output_html="spatial_viewer.html")
 ```
 
-A file path can also be passed directly:
+A string `obs_key` selects the initial field and includes other categorical,
+string, and boolean obs columns in the **Annotation** selector. Numeric fields
+are included only when explicitly requested. All fields are categorical displays.
 
-```python
-from SpannHTML import export_spatial_html
-export_spatial_html("sample.h5ad", obs_key="cell_type", output_html="spatial_viewer.html")
-```
-
-## Optional parameters
+Pass a list to choose exactly which fields are embedded, and in which order:
 
 ```python
 export_spatial_html(
     adata,
-    obs_key="cluster",
+    obs_key=["cluster", "cell_type", "leiden"],
     output_html="spatial_viewer.html",
-    spatial_key="spatial",
-    x_col=0,
-    y_col=1,
-    point_size=6,
-    opacity=0.85,
-    invert_y=False,
-    max_points=None,
-    random_seed=0,
 )
 ```
 
-Note that the exported CSV will only contain spots included in the HTML.
+Use `obs_key=["cluster"]` to include only one field. An `.h5ad` path can replace
+the AnnData object.
 
-## Edit spatial annotations
+Observation identifiers and obs column names must be unique. Non-finite x/y rows
+are omitted and counted in the sidebar. `max_points` optionally samples a
+reproducible subset; CSV exports contain only displayed spots.
 
-In the generated HTML:
+## Browser editing
 
-1. Click a spatial spot.
-2. Select a target category.
-3. Click **Apply to selected spot**.
-4. Click **Export category CSV** when editing is complete.
+1. Choose an annotation.
+2. Click a spot, choose a category, and click **Apply to spot**.
+3. Rename, recolor, show, or hide categories.
+4. Switch fields to continue editing. Each field retains its own edits, names,
+   colors, and visibility within the session.
+5. Export the current annotation or all annotations as CSV.
 
-The exported CSV contains fields such as:
+## CSV schema and import
 
-```text
-barcode
-obs_key
-original_category
-edited_category
-category_changed
-original_x
-original_y
-x
-y
-rotation_clockwise_deg
-mirror_left_right
-mirror_up_down
-```
+Each row represents one **(barcode, obs_key)** pair. An all-annotation CSV repeats
+barcodes across different fields; these are separate annotation values.
 
-## Write edited results back to AnnData
+| Column              | Meaning                                                 |
+| ------------------- | ------------------------------------------------------- |
+| `barcode`           | Observation identifier                                  |
+| `obs_key`           | Annotation field                                        |
+| `original_category` | Label before editing                                    |
+| `edited_category`   | Label after editing                                     |
+| `category_changed`  | Whether the assigned value or non-missing label changed |
+| `category_color`    | Final category color                                    |
+| `category_missing`  | Whether the assigned value represents missing data      |
+
+The redundant 1.1.0 `changed` column is removed; old CSVs
+containing it remain readable. Original and edited labels intentionally describe
+different states, even for unchanged rows.
+
+Spatial columns retain original and displayed x/y, the spatial key, axis columns,
+rotation, flips, center, and source coordinate identifier. Original and displayed
+coordinate pairs describe different states. The transform applies to the complete
+AnnData coordinate array, including spots omitted from a sampled display.
 
 ```python
 from SpannHTML import apply_edit
-edited_adata = apply_edit(adata, "cluster_spatial_edits.csv", obs_key="cluster")
+
+# Apply every field named in the CSV.
+edited = apply_edit(adata, "spatial_annotations_edits.csv")
+
+# Apply only one field.
+edited = apply_edit(adata, "spatial_annotations_edits.csv", obs_key="cell_type")
+
+# Update annotations and colors without changing spatial coordinates.
+edited = apply_edit(
+    adata, "cluster_spatial_edits.csv", apply_spatial_transform=False
+)
+edited.write_h5ad("sample_edited.h5ad")
 ```
 
-The exported spatial rotation and mirror settings are applied to the corresponding columns in `adata.obsm["spatial"]`.
-
-To update categories without modifying spatial coordinates:
+## AnnData auditing
 
 ```python
-edited_adata = apply_edit(
+from SpannHTML import audit_adata
+
+report = audit_adata(
     adata,
-    "cluster_spatial_edits.csv",
-    obs_key="cluster",
-    apply_spatial_transform=False
+    max_matrix_sample=200_000,
+    max_rows_for_axis_checks=4_000,
+    random_state=0,
+    include_pass=True,
 )
+report.print()
 ```
 
-## Notes
-
-* Category renaming inside the HTML changes the displayed and exported category name.
-* Browser edits do not directly modify the original `.h5ad` file.
-* Refreshing the HTML restores its initial state.
-* The HTML includes Plotly.js and all spatial coordinates, so file size increases with the number of spots.
-* `adata.obs_names` must be unique because barcodes are used for spot lookup and CSV write-back.
-
+Checks cover matrices, identifiers, obs/var metadata, layers/raw, embeddings,
+graphs, analysis metadata, spatial coordinates, tissue-image metadata, and palettes.
+Findings contain a check ID, severity (`ERROR`, `WARN`, `INFO`, `PASS`),
+evidence, and a suggested action. The audit is read-only. Matrix-state labels are
+sample-based estimates.
